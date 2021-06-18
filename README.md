@@ -68,37 +68,39 @@ _______________________________________
 Do not watch this cheat sheet before you'll try to solve the task yourself
 
 ```js
+Object.assign(JSON, {
+  stringifyMethods: function (object) {
+    object.methods = Object.keys(object)
+      .filter(propName => typeof object[propName] === 'function')
+        .map(methodName => ({
+          methodName,
+          methodDefinition: `(() => ${object[methodName].toString()})()`
+        }))
+
+    return JSON.stringify(object)
+  },
+
+  parseMethods: function (json) {
+    const object = JSON.parse(json)
+
+    object.methods.forEach(method => {
+      object[method.methodName] = eval(method.methodDefinition)
+    })
+
+    delete object.methods
+
+    return object
+  }
+})
+
 const sourceUser = {
   name: 'Piter',
   getName: function () { console.log(this.name) },
   sayHello: () => console.log('Hello')
 }
 
-JSON.stringifyMethods = function (object) {
-  object.methods = Object.keys(object)
-    .filter(propName => typeof object[propName] === 'function')
-      .map(methodName => ({
-        methodName,
-        methodDefinition: `(() => ${object[methodName].toString()})()`
-      }))
-
-  return JSON.stringify(object)
-}
-
-JSON.parseMethods = function (json) {
-  const object = JSON.parse(json)
-
-  object.methods.forEach(method => {
-    object[method.methodName] = eval(method.methodDefinition)
-  })
-
-  delete object.methods
-
-  return object
-}
-
-
 const json = JSON.stringifyMethods(sourceUser)
+
 const user = JSON.parseMethods(json)
 
 user.getName()
