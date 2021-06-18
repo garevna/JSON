@@ -75,13 +75,12 @@ const sourceUser = {
 }
 
 JSON.stringifyMethods = function (object) {
-  const methods = Object.keys(object)
+  object.methods = Object.keys(object)
     .filter(propName => typeof object[propName] === 'function')
-
-  object.methods = methods.map(methodName => ({
-    methodName,
-    methodDefinition: `(() => ${object[methodName].toString()})()`
-  }))
+      .map(methodName => ({
+        methodName,
+        methodDefinition: `(() => ${object[methodName].toString()})()`
+      }))
 
   return JSON.stringify(object)
 }
